@@ -3,7 +3,7 @@ High-performance lock-free SPMC ring buffer with two-phase dequeue protocol and 
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/dk-open/ring)](https://goreportcard.com/report/github.com/dk-open/ring)
-[![codecov](https://codecov.io/gh/dk-open/ring/graph/badge.svg?token=0UU4GMK24V)](https://codecov.io/gh/dk-open/ring)
+[![codecov](https://codecov.io/gh/dk-open/ring/graph/badge.svg?token=FGK3F49GS4)](https://codecov.io/gh/dk-open/ring)
 [![Go Version](https://img.shields.io/github/go-mod/go-version/dk-open/ring)](https://github.com/dk-open/ring)
 [![GitHub release](https://img.shields.io/github/release/dk-open/ring.svg)](https://github.com/dk-open/ring/releases)
 [![GitHub issues](https://img.shields.io/github/issues/dk-open/ring)](https://github.com/dk-open/ring/issues)

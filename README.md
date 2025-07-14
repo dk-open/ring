@@ -8,6 +8,34 @@ High-performance lock-free SPMC ring buffer with two-phase dequeue protocol and 
 [![GitHub release](https://img.shields.io/github/release/dk-open/ring.svg)](https://github.com/dk-open/ring/releases)
 [![GitHub issues](https://img.shields.io/github/issues/dk-open/ring)](https://github.com/dk-open/ring/issues)
 
+## Overview
+
+`ringqueue` is a blazing-fast, lock-free ring buffer (queue) implementation for Go, inspired by Disruptor and optimized for low-latency, high-throughput scenarios. Designed for HFT, real-time systems, and any case where garbage-free, wait-free operations are required.
+
+- No dependencies
+- Generic (Go 1.18+)
+- CAS-based head/tail, false sharing padding
+- ABA protection
+- Busy-spin and adaptive exponential backoff
+- Supports multiple consumers (SPMC/MPMC)
+
+
+## Features
+- High-performance, lock-free queue with atomic operations
+- Efficient memory usage (single buffer allocation)
+- Dual-Counter System
+- Two-phase dequeue protocol for safe concurrent access
+- ABA protection
+- Wait-free progress
+- Configurable for concurrent readers
+- Busy-spin + adaptive backoff to minimize latency spikes
+- Padding to avoid false sharing on modern CPUs
+
+##  When to Use
+- High-frequency trading engines
+- Real-time data pipelines
+- Metrics/event aggregation
+- Anywhere you want the speed of a ring buffer without GC churn or locks
 
 ## Example Usage
 

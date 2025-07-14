@@ -54,15 +54,15 @@ func BenchmarkQueue_CompareGoImplementations(b *testing.B) {
 		benchmarkGoChannels(b, 1024, 1, 1)
 	})
 
-	b.Run("GoChannels Capacity: 256 Reader: 2", func(b *testing.B) {
+	b.Run("GoChannels Capacity: 1024 Reader: 2", func(b *testing.B) {
 		benchmarkGoChannels(b, 1024, 1, 2)
 	})
 
-	b.Run("GoChannels Capacity: 256 Reader: 4", func(b *testing.B) {
+	b.Run("GoChannels Capacity: 1024 Reader: 4", func(b *testing.B) {
 		benchmarkGoChannels(b, 1024, 1, 4)
 	})
 
-	b.Run("GoChannels Capacity: 256 Reader: 8", func(b *testing.B) {
+	b.Run("GoChannels Capacity: 1024 Reader: 8", func(b *testing.B) {
 		benchmarkGoChannels(b, 1024, 1, 8)
 	})
 }
@@ -83,8 +83,7 @@ func benchmarkOurImplementation(b *testing.B, capacity int, numProducers, numCon
 		go func() {
 			defer wg.Done()
 			for {
-				_, success := q.DequeueValue()
-				if success {
+				if _, success := q.Dequeue(); success {
 					if atomic.AddInt64(&consumed, 1) >= int64(b.N) {
 						return
 					}
@@ -95,6 +94,7 @@ func benchmarkOurImplementation(b *testing.B, capacity int, numProducers, numCon
 			}
 		}()
 	}
+
 	b.ReportAllocs()
 	b.ResetTimer()
 

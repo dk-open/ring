@@ -2,7 +2,6 @@ package ring
 
 import (
 	"fmt"
-	"os"
 	"runtime"
 	"sync"
 	"sync/atomic"
@@ -19,9 +18,7 @@ func TestQueue_BasicOperations(t *testing.T) {
 
 	var v *int
 	// Test empty queue
-	if ok := q.Dequeue(func(item int) {
-
-	}); ok {
+	if _, ok := q.Dequeue(); ok {
 		t.Errorf("Expected empty queue, got item: %v", v)
 	}
 
@@ -32,21 +29,17 @@ func TestQueue_BasicOperations(t *testing.T) {
 	}
 
 	// Test dequeue
-	ok := q.Dequeue(func(item int) {
+	if item, ok := q.Dequeue(); ok {
 		if item != 42 {
 			t.Errorf("Expected 42, got %d", item)
 		}
-	})
-	if !ok {
+	} else {
 		t.Error("Failed to dequeue item")
 	}
 	fmt.Println(v)
 
 	// Test empty queue after dequeue
-	if ok = q.Dequeue(func(item int) {
-		//v = item
-		t.Error("Expected empty queue after dequeue, got item")
-	}); ok {
+	if _, ok := q.Dequeue(); ok {
 		t.Errorf("Expected empty queue after dequeue, got item: %v", v)
 	}
 }
@@ -73,11 +66,7 @@ func TestQueue_CapacityLimits(t *testing.T) {
 	}
 
 	// Dequeue one item
-	ok := q.Dequeue(func(item string) {
-		//v = *item
-		fmt.Println("Dequeued:", item)
-	})
-	if !ok {
+	if _, ok := q.Dequeue(); !ok {
 		t.Error("Failed to dequeue item from full queue")
 	}
 	item := "new"
@@ -104,13 +93,11 @@ func TestQueue_FIFO(t *testing.T) {
 
 	// Dequeue items and verify order
 	for i := 0; i < 5; i++ {
-		ok := q.Dequeue(func(item int) {
+		if item, ok := q.Dequeue(); ok {
 			if item != i {
 				t.Errorf("Expected %d, got %d", i, item)
 			}
-
-		})
-		if !ok {
+		} else {
 			t.Errorf("Failed to dequeue item %d", i)
 		}
 	}
@@ -150,16 +137,8 @@ func TestQueue_SingleProducerMultipleConsumers(t *testing.T) {
 			var localResults []int
 
 			for {
-				var v int
-				ok := q.Dequeue(func(item int) {
-					v = item
-					if v == 0 {
-						fmt.Println("  Dequeued zero:", v)
-						os.Exit(22)
-					}
-				})
-				if ok {
-					localResults = append(localResults, v)
+				if item, ok := q.Dequeue(); ok {
+					localResults = append(localResults, item)
 					if atomic.AddInt64(&consumed, 1) >= numItems {
 						break
 					}
@@ -235,15 +214,12 @@ func TestMustEnqueue_SuccessPath(t *testing.T) {
 	}
 
 	// Verify the item was enqueued correctly
-	var result int
-	success := q.Dequeue(func(item int) {
-		result = item
-	})
-	if !success {
+	if result, success := q.Dequeue(); success {
+		if result != 42 {
+			t.Errorf("Expected 42, got %d", result)
+		}
+	} else {
 		t.Error("Failed to dequeue after MustEnqueue")
-	}
-	if result != 42 {
-		t.Errorf("Expected 42, got %d", result)
 	}
 
 	// Test successful enqueue to partially filled queue
@@ -257,14 +233,12 @@ func TestMustEnqueue_SuccessPath(t *testing.T) {
 
 	// Verify all items were enqueued correctly
 	for i := 0; i < 3; i++ {
-		success = q.Dequeue(func(item int) {
+		if item, success := q.Dequeue(); success {
 			if item != i {
-				t.Errorf("Expected %d, got %d", i, result)
+				t.Errorf("Expected %d, got %d", i, item)
 			}
-		})
-		if !success {
+		} else {
 			t.Errorf("Failed to dequeue item %d", i)
 		}
-
 	}
 }

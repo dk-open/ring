@@ -10,8 +10,7 @@ import (
 type IQueue[T any] interface {
 	MustEnqueue(item T) error
 	Enqueue(v T) bool
-	Dequeue(f func(item T)) bool
-	DequeueValue() (res T, ok bool)
+	Dequeue() (res T, ok bool)
 }
 
 var (
@@ -80,8 +79,8 @@ func (q *queue[T]) MustEnqueue(item T) error {
 	}
 }
 
-func (q *queue[T]) DequeueValue() (res T, ok bool) {
-	attempt := 0
+func (q *queue[T]) Dequeue() (res T, ok bool) {
+	//attempt := 0
 	for {
 		tail := q.tail.Load()
 		head := q.head.Load()
@@ -89,8 +88,7 @@ func (q *queue[T]) DequeueValue() (res T, ok bool) {
 			return
 		}
 		if tail&1 == 1 || head-tail < 2 {
-			attempt++
-			dequeueBackoff(attempt)
+			runtime.Gosched()
 			continue
 		}
 
@@ -100,33 +98,7 @@ func (q *queue[T]) DequeueValue() (res T, ok bool) {
 			q.tail.Store(nextTail + 1)
 			return res, true
 		}
-		attempt++
-		dequeueBackoff(attempt)
-	}
-}
-
-func (q *queue[T]) Dequeue(f func(item T)) bool {
-	attempt := 0
-	for {
-		tail := q.tail.Load()
-		head := q.head.Load()
-		if tail == head {
-			return false // Queue is empty
-		}
-		if tail&1 == 1 || head-tail < 2 {
-			attempt++
-			dequeueBackoff(attempt)
-			continue
-		}
-
-		nextTail := tail + 1
-		if q.tail.CompareAndSwap(tail, nextTail) {
-			f(q.buffer[tail>>1&q.capMask])
-			q.tail.Store(nextTail + 1)
-			return true
-		}
-		attempt++
-		dequeueBackoff(attempt)
+		runtime.Gosched()
 	}
 }
 
@@ -154,8 +126,7 @@ func enqueueBackoff(attempt int) error {
 
 func dequeueBackoff(attempt int) {
 	switch {
-	case attempt < 5:
-	case attempt < 10:
+	case attempt < 50:
 		runtime.Gosched() // Let Go scheduler run another goroutine
 	default:
 		d := time.Microsecond << uint(attempt-20)

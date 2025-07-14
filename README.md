@@ -76,6 +76,43 @@ func main() {
 
 ```
 
+
+## Benchmarks
+
+```bash
+BenchmarkQueue_CompareGoImplementations
+BenchmarkQueue_CompareGoImplementations/RingQueue_Capacity:_256_Reader:_1
+BenchmarkQueue_CompareGoImplementations/RingQueue_Capacity:_256_Reader:_1-10         	34370985	        40.08 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueue_CompareGoImplementations/RingQueue_Capacity:_256_Reader:_2
+BenchmarkQueue_CompareGoImplementations/RingQueue_Capacity:_256_Reader:_2-10         	27501936	        43.82 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueue_CompareGoImplementations/RingQueue_Capacity:_256_Reader:_4
+BenchmarkQueue_CompareGoImplementations/RingQueue_Capacity:_256_Reader:_4-10         	20567461	        61.90 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueue_CompareGoImplementations/GoChannels_Capacity:_256_Reader:_1
+BenchmarkQueue_CompareGoImplementations/GoChannels_Capacity:_256_Reader:_1-10        	20232192	        61.67 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueue_CompareGoImplementations/GoChannels_Capacity:_256_Reader:_2
+BenchmarkQueue_CompareGoImplementations/GoChannels_Capacity:_256_Reader:_2-10        	13916404	        80.26 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueue_CompareGoImplementations/GoChannels_Capacity:_256_Reader:_4
+BenchmarkQueue_CompareGoImplementations/GoChannels_Capacity:_256_Reader:_4-10        	 4143522	       293.7 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueue_CompareGoImplementations/RingQueue_Capacity:_1024_Reader:_1
+BenchmarkQueue_CompareGoImplementations/RingQueue_Capacity:_1024_Reader:_1-10        	33240498	        41.36 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueue_CompareGoImplementations/RingQueue_Capacity:_1024_Reader:_2
+BenchmarkQueue_CompareGoImplementations/RingQueue_Capacity:_1024_Reader:_2-10        	28821038	        41.58 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueue_CompareGoImplementations/RingQueue_Capacity:_1024_Reader:_4
+BenchmarkQueue_CompareGoImplementations/RingQueue_Capacity:_1024_Reader:_4-10        	24417829	        46.22 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueue_CompareGoImplementations/RingQueue_Capacity:_1024_Reader:_8
+BenchmarkQueue_CompareGoImplementations/RingQueue_Capacity:_1024_Reader:_8-10        	20314622	        61.51 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueue_CompareGoImplementations/GoChannels_Capacity:_1024_Reader:_1
+BenchmarkQueue_CompareGoImplementations/GoChannels_Capacity:_1024_Reader:_1-10       	32176396	        37.01 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueue_CompareGoImplementations/GoChannels_Capacity:_1024_Reader:_2
+BenchmarkQueue_CompareGoImplementations/GoChannels_Capacity:_1024_Reader:_2-10       	26126785	        45.66 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueue_CompareGoImplementations/GoChannels_Capacity:_1024_Reader:_4
+BenchmarkQueue_CompareGoImplementations/GoChannels_Capacity:_1024_Reader:_4-10       	 9999576	       118.0 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueue_CompareGoImplementations/GoChannels_Capacity:_1024_Reader:_8
+BenchmarkQueue_CompareGoImplementations/GoChannels_Capacity:_1024_Reader:_8-10       	 5259519	       242.9 ns/op	       0 B/op	       0 allocs/op
+
+
+```
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.

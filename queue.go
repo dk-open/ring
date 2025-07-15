@@ -18,25 +18,22 @@ var (
 )
 
 type queue[T any] struct {
-	buffer            []T
-	cap               uint64
-	capMask           uint64
-	capX2             uint64
-	_                 [64]byte // padding
-	head, tail        pad.AtomicUint64
-	concurrentReaders bool
+	buffer     []T
+	cap        uint64
+	capMask    uint64
+	capX2      uint64
+	head, tail pad.AtomicUint64
 }
 
-func Queue[T any](capacity uint64, concurrentReaders bool) (IQueue[T], error) {
+func Queue[T any](capacity uint64) (IQueue[T], error) {
 	if capacity <= 0 || capacity&(capacity-1) != 0 {
 		return nil, ErrCapacity
 	}
 	return &queue[T]{
-		concurrentReaders: concurrentReaders,
-		buffer:            make([]T, capacity),
-		capMask:           capacity - 1,
-		cap:               capacity,
-		capX2:             capacity*2 - 1,
+		buffer:  make([]T, capacity),
+		capMask: capacity - 1,
+		cap:     capacity,
+		capX2:   capacity*2 - 1,
 	}, nil
 }
 
@@ -46,10 +43,13 @@ func (q *queue[T]) Enqueue(item T) bool {
 		return false
 	}
 
-	if q.head.CompareAndSwap(head, head+2) {
+	nextHead := head + 1
+	if q.head.CompareAndSwap(head, nextHead) {
 		q.buffer[head>>1&q.capMask] = item
+		q.head.Store(nextHead + 1)
 		return true
 	}
+
 	return false
 }
 
@@ -109,30 +109,17 @@ func enqueueBackoff(attempt int) error {
 		// Just an empty loop does nothing, but you could do:
 		// runtime_procPin()... // not exposed
 		// For real, just do nothing
-	case attempt < 10:
+	case attempt < 20:
 		runtime.Gosched() // Let Go scheduler run another goroutine
 	case attempt < 10000:
 		// Exponential backoff, up to a max
 		d := time.Microsecond << uint(attempt-20)
-		if d > time.Millisecond {
-			d = time.Millisecond
+		if d > 5*time.Millisecond {
+			d = 5 * time.Millisecond
 		}
 		time.Sleep(d)
 	default:
 		return fmt.Errorf("enqueue failed after %d attempts", attempt)
 	}
 	return nil
-}
-
-func dequeueBackoff(attempt int) {
-	switch {
-	case attempt < 50:
-		runtime.Gosched() // Let Go scheduler run another goroutine
-	default:
-		d := time.Microsecond << uint(attempt-20)
-		if d > time.Millisecond {
-			d = time.Millisecond
-		}
-		time.Sleep(d)
-	}
 }

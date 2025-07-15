@@ -8,7 +8,75 @@ High-performance lock-free SPMC ring buffer with two-phase dequeue protocol and 
 [![GitHub release](https://img.shields.io/github/release/dk-open/ring.svg)](https://github.com/dk-open/ring/releases)
 [![GitHub issues](https://img.shields.io/github/issues/dk-open/ring)](https://github.com/dk-open/ring/issues)
 
-## Overview
+## Disruptor
+
+### Overview
+
+`disruptor` is a high-performance, lock-free ring buffer implementation for Go, inspired by the Disruptor pattern. It is designed for low-latency, high-throughput applications such as high-frequency trading (HFT), real-time data processing, and event-driven architectures.
+
+This variant uses a sequence-doubling protocol to safely support multiple concurrent readers and avoid the classic ABA problem in lock-free data structures.
+
+### Features
+- Single-producer, multi-consumer (SPMC) disruptor
+- Each reader gets its own callback and reads concurrently via its own goroutine
+- Advanced ABA-safety: buffer slots only reused after all readers advance
+- Sequence/cursor protocol: physical slot index is derived by sequence >> 1 & mask
+- Efficient adaptive backoff (busy-spin, yield, sleep) for ultra-fast pipelines
+
+### Example
+
+```go
+import (
+	"context"
+	"fmt"
+	"github.com/dk-open/ring"
+)
+
+func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	disruptor, err := ring.Disruptor[int](ctx, 1024,
+		func(val int) { fmt.Println("reader1:", val) },
+		func(val int) { fmt.Println("reader2:", val) },
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	for i := 0; i < 10; i++ {
+		disruptor.MustEnqueue(i)
+	}
+
+	// Graceful shutdown
+	cancel()
+}
+
+```
+
+### Benchmarks
+
+```bash
+cpu: Apple M4
+BenchmarkDisruptor
+BenchmarkDisruptor/Disruptor_1_readers
+BenchmarkDisruptor/Disruptor_1_readers-10         	81903733	        13.92 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDisruptor/Channel_1_readers
+BenchmarkDisruptor/Channel_1_readers-10           	33316467	        33.96 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDisruptor/Disruptor_2_readers
+BenchmarkDisruptor/Disruptor_2_readers-10         	38365503	        30.77 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDisruptor/Channel_2_readers
+BenchmarkDisruptor/Channel_2_readers-10           	16211766	        73.94 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDisruptor/Disruptor_4_readers
+BenchmarkDisruptor/Disruptor_4_readers-10         	11021539	       101.9 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDisruptor/Channel_4_readers
+BenchmarkDisruptor/Channel_4_readers-10           	 6551292	       157.1 ns/op	       0 B/op	       0 allocs/op
+```
+
+
+## Queue
+
+### Overview
 
 `ringqueue` is a blazing-fast, lock-free ring buffer (queue) implementation for Go, inspired by Disruptor and optimized for low-latency, high-throughput scenarios. Designed for HFT, real-time systems, and any case where garbage-free, wait-free operations are required.
 
@@ -20,7 +88,7 @@ High-performance lock-free SPMC ring buffer with two-phase dequeue protocol and 
 - Supports multiple consumers (SPMC/MPMC)
 
 
-## Features
+### Features
 - High-performance, lock-free queue with atomic operations
 - Efficient memory usage (single buffer allocation)
 - Dual-Counter System
@@ -31,13 +99,13 @@ High-performance lock-free SPMC ring buffer with two-phase dequeue protocol and 
 - Busy-spin + adaptive backoff to minimize latency spikes
 - Padding to avoid false sharing on modern CPUs
 
-##  When to Use
+###  When to Use
 - High-frequency trading engines
 - Real-time data pipelines
 - Metrics/event aggregation
 - Anywhere you want the speed of a ring buffer without GC churn or locks
 
-## Example Usage
+### Example Usage
 
 ```go
 package main
@@ -77,9 +145,10 @@ func main() {
 ```
 
 
-## Benchmarks
+### Benchmarks
 
 ```bash
+cpu: Apple M4
 BenchmarkQueue_CompareGoImplementations
 BenchmarkQueue/RingQueue_Capacity:_256_Reader:_1
 BenchmarkQueue/RingQueue_Capacity:_256_Reader:_1-10         	34370985	        40.08 ns/op	       0 B/op	       0 allocs/op

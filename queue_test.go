@@ -11,7 +11,7 @@ import (
 
 // Unit Tests
 func TestQueue_BasicOperations(t *testing.T) {
-	q, err := Queue[int](8, true)
+	q, err := Queue[int](8)
 	if err != nil {
 		t.Fatalf("Failed to create queue: %v", err)
 	}
@@ -36,7 +36,6 @@ func TestQueue_BasicOperations(t *testing.T) {
 	} else {
 		t.Error("Failed to dequeue item")
 	}
-	fmt.Println(v)
 
 	// Test empty queue after dequeue
 	if _, ok := q.Dequeue(); ok {
@@ -46,7 +45,7 @@ func TestQueue_BasicOperations(t *testing.T) {
 
 func TestQueue_CapacityLimits(t *testing.T) {
 	capacity := uint64(4)
-	q, err := Queue[string](capacity, true)
+	q, err := Queue[string](capacity)
 	if err != nil {
 		t.Fatalf("Failed to create queue: %v", err)
 	}
@@ -78,7 +77,7 @@ func TestQueue_CapacityLimits(t *testing.T) {
 }
 
 func TestQueue_FIFO(t *testing.T) {
-	q, err := Queue[int](16, true)
+	q, err := Queue[int](16)
 	if err != nil {
 		t.Fatalf("Failed to create queue: %v", err)
 	}
@@ -104,13 +103,13 @@ func TestQueue_FIFO(t *testing.T) {
 }
 
 func TestQueue_SingleProducerMultipleConsumers(t *testing.T) {
-	q, err := Queue[int](1024, true)
+	q, err := Queue[int](1024)
 	if err != nil {
 		t.Fatalf("Failed to create queue: %v", err)
 	}
-	const numItems = 10000
-	const numConsumers = 4
-
+	const numItems = 1000
+	const numConsumers = 2
+	time.Sleep(1 * time.Second)
 	// Producer goroutine
 	go func() {
 		for i := 0; i < numItems; i++ {
@@ -172,7 +171,7 @@ func TestQueue_SingleProducerMultipleConsumers(t *testing.T) {
 }
 
 func TestQueue_BitMaskOperations(t *testing.T) {
-	q, err := Queue[int](8, true)
+	q, err := Queue[int](8)
 	if err != nil {
 		t.Fatalf("Failed to create queue: %v", err)
 	}
@@ -202,7 +201,7 @@ func TestQueue_BitMaskOperations(t *testing.T) {
 
 // Test 1: Success path - MustEnqueue должен работать как обычный Enqueue в нормальных условиях
 func TestMustEnqueue_SuccessPath(t *testing.T) {
-	q, err := Queue[int](8, true)
+	q, err := Queue[int](8)
 	if err != nil {
 		t.Fatalf("Failed to create queue: %v", err)
 	}

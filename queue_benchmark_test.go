@@ -46,10 +46,6 @@ func BenchmarkQueue_CompareGoImplementations(b *testing.B) {
 		benchmarkOurImplementation(b, 1024, 1, 4)
 	})
 
-	b.Run("RingQueue Capacity: 1024 Reader: 8", func(b *testing.B) {
-		benchmarkOurImplementation(b, 1024, 1, 8)
-	})
-
 	b.Run("GoChannels Capacity: 1024 Reader: 1", func(b *testing.B) {
 		benchmarkGoChannels(b, 1024, 1, 1)
 	})
@@ -61,15 +57,11 @@ func BenchmarkQueue_CompareGoImplementations(b *testing.B) {
 	b.Run("GoChannels Capacity: 1024 Reader: 4", func(b *testing.B) {
 		benchmarkGoChannels(b, 1024, 1, 4)
 	})
-
-	b.Run("GoChannels Capacity: 1024 Reader: 8", func(b *testing.B) {
-		benchmarkGoChannels(b, 1024, 1, 8)
-	})
 }
 
 // Наша реализация
 func benchmarkOurImplementation(b *testing.B, capacity int, numProducers, numConsumers int) {
-	q, err := Queue[int](uint64(capacity), true)
+	q, err := Queue[int](uint64(capacity))
 	if err != nil {
 		b.Fatalf("Failed to create queue: %v", err)
 	}
